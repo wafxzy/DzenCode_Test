@@ -10,4 +10,12 @@
     <Folder Include="Repositories\Interfaces\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DzenCode.Common\DzenCode.Common.csproj" />
+  </ItemGroup>
+
 </Project>
