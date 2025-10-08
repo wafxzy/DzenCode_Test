@@ -23,7 +23,8 @@ namespace DzenCode.Common.Helpers
                 .ForMember(dest => dest.ImagePath, opt => opt.Ignore())
                 .ForMember(dest => dest.TextFilePath, opt => opt.Ignore());
 
-            CreateMap<Comment, CommentResponseDto>();
+            CreateMap<Comment, CommentResponseDto>()
+                .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies));
         }
     }
 }

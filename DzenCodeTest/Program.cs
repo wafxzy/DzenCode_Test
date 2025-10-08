@@ -1,7 +1,14 @@
+using DzenCode.BLL.Services;
+using DzenCode.BLL.Services.Interfaces;
+using DzenCode.Common.Helpers;
 using DzenCode.DAL.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Environment.WebRootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
 
 
 
@@ -10,14 +17,25 @@ builder.Services.AddDbContext<CommentsDBContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))));
 
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(CommentProfile));
 
 builder.Services.AddControllers();
 
-builder.Services.AddOpenApi();
+builder.Services.AddSingleton<ICaptchaService, CaptchaService>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IHtmlSanitizerService, HtmlSanitizerService>();
 
-var app = builder.Build();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "DzenCodeTest API",
+        Version = "v1",
+        Description = "API TEST.)"
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -31,12 +49,30 @@ builder.Services.AddCors(options =>
     });
 });
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+WebApplication app = builder.Build();
 
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DzenCodeTest API v1");
+    c.RoutePrefix = "swagger"; 
+});
+
+
+app.UseCors("AllowAngular");
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")),
+    RequestPath = "/uploads"
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
