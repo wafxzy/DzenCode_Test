@@ -106,6 +106,8 @@
         <img 
           [src]="getImageUrl(comment.imagePath)" 
           (click)="openLightbox(comment.imagePath)"
+          (error)="onImageError($event, comment.imagePath)"
+          (load)="onImageLoad($event, comment.imagePath)"
           alt="Изображение комментария"
           class="comment-img">
       </div>

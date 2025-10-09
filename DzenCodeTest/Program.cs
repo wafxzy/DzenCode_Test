@@ -36,15 +36,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular", policy =>
+    options.AddPolicy("AllowFrontend", builder =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201", "http://localhost:4202", "http://localhost:4212")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .SetIsOriginAllowed(origin => true) 
-              .AllowCredentials();
+        builder.SetIsOriginAllowed(_ => true)
+                   .AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .SetPreflightMaxAge(TimeSpan.FromDays(1d));
     });
 });
 
@@ -57,10 +58,9 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger"; 
 });
 
+app.UseCors("AllowFrontend");
 
-app.UseCors("AllowAngular");
-
-app.UseStaticFiles();
+app.UseStaticFiles(); 
 
 app.UseStaticFiles(new StaticFileOptions
 {

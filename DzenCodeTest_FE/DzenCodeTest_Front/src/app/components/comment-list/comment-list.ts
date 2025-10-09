@@ -115,11 +115,27 @@ export class CommentList implements OnInit {
   }
 
   public getImageUrl(imagePath: string): string {
-    return `${environment.baseUrl}/${imagePath}`;
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      console.log('getImageUrl: Full URL detected:', imagePath);
+      return imagePath;
+    }
+    
+    const cleanPath: string = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    const fullUrl: string = `${environment.baseUrl}/${cleanPath}`;
+    console.log('getImageUrl:', { imagePath, cleanPath, fullUrl, baseUrl: environment.baseUrl });
+    return fullUrl;
   }
 
   public getFileUrl(filePath: string): string {
-    return `${environment.baseUrl}/${filePath}`;
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      console.log('getFileUrl: Full URL detected:', filePath);
+      return filePath;
+    }
+    
+    const cleanPath: string = filePath.startsWith('/') ? filePath.substring(1) : filePath;
+    const fullUrl: string = `${environment.baseUrl}/${cleanPath}`;
+    console.log('getFileUrl:', { filePath, cleanPath, fullUrl, baseUrl: environment.baseUrl });
+    return fullUrl;
   }
 
   public openLightbox(imagePath: string): void {
@@ -128,5 +144,15 @@ export class CommentList implements OnInit {
 
   public closeLightbox(): void {
     this.lightboxImage = null;
+  }
+
+  public onImageError(event: any, imagePath: string): void {
+    console.error('Image failed to load:', { imagePath, event });
+    console.error('Attempted URL:', this.getImageUrl(imagePath));
+  }
+
+  public onImageLoad(event: any, imagePath: string): void {
+    console.log('Image loaded successfully:', { imagePath, event });
+    console.log('Loaded URL:', this.getImageUrl(imagePath));
   }
 }
