@@ -1,1 +1,122 @@
-<p>comment-form works!</p>
+<div class="comment-form-container">
+  <h3>{{ parentId ? 'Reply to ' + (replyToUser || 'Comment') : 'Add New Comment' }}</h3>
+  
+  <form [formGroup]="commentForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="userName">User Name *</label>
+      <input 
+        type="text" 
+        id="userName" 
+        formControlName="userName"
+        class="form-control"
+        [class.is-invalid]="commentForm.get('userName')?.invalid && commentForm.get('userName')?.touched">
+      <div class="invalid-feedback" *ngIf="commentForm.get('userName')?.invalid && commentForm.get('userName')?.touched">
+        <div *ngIf="commentForm.get('userName')?.errors?.['required']">User Name is required</div>
+        <div *ngIf="commentForm.get('userName')?.errors?.['pattern']">User Name can only contain Latin letters and numbers</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input 
+        type="email" 
+        id="email" 
+        formControlName="email"
+        class="form-control"
+        [class.is-invalid]="commentForm.get('email')?.invalid && commentForm.get('email')?.touched">
+      <div class="invalid-feedback" *ngIf="commentForm.get('email')?.invalid && commentForm.get('email')?.touched">
+        <div *ngIf="commentForm.get('email')?.errors?.['required']">Email is required</div>
+        <div *ngIf="commentForm.get('email')?.errors?.['email']">Please enter a valid email</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="homePage">Home Page</label>
+      <input 
+        type="url" 
+        id="homePage" 
+        formControlName="homePage"
+        class="form-control"
+        [class.is-invalid]="commentForm.get('homePage')?.invalid && commentForm.get('homePage')?.touched">
+      <div class="invalid-feedback" *ngIf="commentForm.get('homePage')?.invalid && commentForm.get('homePage')?.touched">
+        <div *ngIf="commentForm.get('homePage')?.errors?.['url']">Please enter a valid URL</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="text">Comment *</label>
+      <div class="text-editor-toolbar">
+        <button type="button" (click)="insertTag('i')" title="Italic">[i]</button>
+        <button type="button" (click)="insertTag('strong')" title="Bold">[strong]</button>
+        <button type="button" (click)="insertTag('code')" title="Code">[code]</button>
+        <button type="button" (click)="insertTag('a')" title="Link">[a]</button>
+        <button type="button" (click)="previewText()" title="Preview">Preview</button>
+      </div>
+      <textarea 
+        id="text" 
+        formControlName="text"
+        rows="6"
+        class="form-control"
+        [class.is-invalid]="commentForm.get('text')?.invalid && commentForm.get('text')?.touched"
+        #textArea></textarea>
+      <div class="invalid-feedback" *ngIf="commentForm.get('text')?.invalid && commentForm.get('text')?.touched">
+        <div *ngIf="commentForm.get('text')?.errors?.['required']">Comment text is required</div>
+      </div>
+      
+      <!-- Preview -->
+      <div *ngIf="previewHtml" class="preview-container">
+        <h4>Preview:</h4>
+        <div class="preview-content" [innerHTML]="previewHtml"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="image">Image (JPG, PNG, GIF, max 320x240)</label>
+      <input 
+        type="file" 
+        id="image" 
+        (change)="onImageSelect($event)"
+        accept=".jpg,.jpeg,.png,.gif"
+        class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="textFile">Text File (TXT, max 100KB)</label>
+      <input 
+        type="file" 
+        id="textFile" 
+        (change)="onTextFileSelect($event)"
+        accept=".txt"
+        class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>CAPTCHA *</label>
+      <div class="captcha-container">
+        <img *ngIf="captcha" [src]="'data:image/png;base64,' + captcha.image" alt="CAPTCHA" class="captcha-image">
+        <button type="button" (click)="refreshCaptcha()" class="refresh-captcha">Refresh</button>
+      </div>
+      <input 
+        type="text" 
+        formControlName="captchaCode"
+        placeholder="Enter CAPTCHA code"
+        class="form-control"
+        [class.is-invalid]="commentForm.get('captchaCode')?.invalid && commentForm.get('captchaCode')?.touched">
+      <div class="invalid-feedback" *ngIf="commentForm.get('captchaCode')?.invalid && commentForm.get('captchaCode')?.touched">
+        <div *ngIf="commentForm.get('captchaCode')?.errors?.['required']">CAPTCHA code is required</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="commentForm.invalid || isSubmitting" class="submit-btn">
+        {{ isSubmitting ? 'Submitting...' : 'Submit Comment' }}
+      </button>
+      <button type="button" (click)="resetForm()" class="reset-btn">Reset</button>
+      <button *ngIf="parentId" type="button" (click)="cancelReply()" class="cancel-btn">Cancel Reply</button>
+    </div>
+  </form>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+</div>

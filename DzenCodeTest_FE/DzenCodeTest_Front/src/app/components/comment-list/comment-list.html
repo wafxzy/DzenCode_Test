@@ -1,1 +1,94 @@
 <p>comment-list works!</p>
+<div class="comments-section">
+  <div class="comments-header">
+    <div class="sort-controls">
+      <label>Сортировка:</label>
+      <select [(ngModel)]="sortBy" (change)="loadComments()" class="sort-select">
+        <option value="CreatedAt">По дате</option>
+        <option value="UserName">По имени</option>
+      </select>
+      <select [(ngModel)]="sortOrder" (change)="loadComments()" class="sort-select">
+        <option value="desc">По убыванию</option>
+        <option value="asc">По возрастанию</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="comments.length === 0" class="no-comments">
+    Комментариев пока нет. Будьте первым!
+  </div>
+
+  <div class="comments-list">
+    <ng-container [ngTemplateOutlet]="commentTemplate" 
+                  [ngTemplateOutletContext]="{comments: comments, depth: 0}">
+    </ng-container>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      *ngFor="let page of [].constructor(totalPages); let i = index" 
+      (click)="goToPage(i + 1)"
+      [class.active]="currentPage === i + 1"
+      class="page-btn">
+      {{i + 1}}
+    </button>
+  </div>
+</div>
+
+<ng-template #commentTemplate let-comments="comments" let-depth="depth">
+  <div 
+    *ngFor="let comment of comments" 
+    class="comment-item"
+    [style.margin-left.px]="depth * 30"
+    [class.comment-depth-1]="depth === 1"
+    [class.comment-depth-2]="depth === 2"
+    [class.comment-depth-3]="depth >= 3">
+    
+    <div class="comment-header">
+      <span class="comment-author">{{comment.userName}}</span>
+      <span class="comment-date">{{comment.createdAt | date:'dd.MM.yyyy HH:mm'}}</span>
+      <span class="comment-depth-indicator" *ngIf="depth > 0">
+        Уровень {{depth}}
+      </span>
+    </div>
+
+    <div class="comment-content">
+      <p [innerHTML]="comment.text"></p>
+      
+      <div *ngIf="comment.imagePath" class="comment-image">
+        <img 
+          [src]="getImageUrl(comment.imagePath)" 
+          (click)="openLightbox(comment.imagePath)"
+          alt="Изображение комментария"
+          class="comment-img">
+      </div>
+
+      <div *ngIf="comment.filePath" class="comment-file">
+        <a [href]="getFileUrl(comment.filePath)" target="_blank" class="file-link">
+           Скачать файл
+        </a>
+      </div>
+    </div>
+
+    <div class="comment-actions">
+      <button (click)="replyToComment(comment.id)" class="reply-btn">
+        Ответить
+      </button>
+    </div>
+
+    <div 
+      *ngIf="comment.replies && comment.replies.length > 0" 
+      class="comment-replies">
+      <ng-container [ngTemplateOutlet]="commentTemplate" 
+                    [ngTemplateOutletContext]="{comments: comment.replies, depth: depth + 1}">
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<div *ngIf="lightboxImage" class="lightbox" (click)="closeLightbox()">
+  <div class="lightbox-content">
+    <img [src]="lightboxImage" alt="Увеличенное изображение">
+    <button class="lightbox-close" (click)="closeLightbox()"></button>
+  </div>
+</div>

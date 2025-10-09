@@ -1,1 +1,19 @@
-<router-outlet></router-outlet>
+<div class="app-container">
+  <main class="app-main">
+    <section class="comment-form-section">
+      <app-comment-form 
+        [parentId]="replyToCommentId"
+        [replyToUser]="replyToUserName"
+        (commentAdded)="onCommentAdded()"
+        (cancelReplyEvent)="onCancelReply()">
+      </app-comment-form>
+    </section>
+
+    <section class="comments-section">
+      <app-comment-list 
+        #commentsList
+        (replyRequested)="onReplyToComment($event)">
+      </app-comment-list>
+    </section>
+  </main>
+</div>
