@@ -27,8 +27,8 @@ export class App implements AfterViewInit {
     
     setTimeout((): void => {
       if (this.commentsList) {
-        console.log('App: calling commentsList.loadComments()');
-        this.commentsList.loadComments();
+        console.log('App: calling commentsList.loadCommentsFromStart()');
+        this.commentsList.loadCommentsFromStart();
       } else {
         console.error('App: commentsList reference is still null after timeout');
       }

@@ -17,7 +17,7 @@ export class CommentList implements OnInit {
   
   public comments: Comment[] = [];
   public currentPage: number = 1;
-  public pageSize: number = 25;
+  public pageSize: number = 10;
   public totalPages: number = 1;
   public sortBy: string = 'CreatedAt';
   public sortOrder: string = 'desc';
@@ -56,9 +56,44 @@ export class CommentList implements OnInit {
       });
   }
 
-  public goToPage(page: number): void {
-    this.currentPage = page;
+  public loadCommentsFromStart(): void {
+    this.currentPage = 1;
     this.loadComments();
+  }
+
+  public goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadComments();
+    }
+  }
+
+  public goToFirstPage(): void {
+    this.goToPage(1);
+  }
+
+  public goToLastPage(): void {
+    this.goToPage(this.totalPages);
+  }
+
+  public goToPreviousPage(): void {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  public goToNextPage(): void {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  public getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const startPage: number = Math.max(1, this.currentPage - 2);
+    const endPage: number = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
 
   public replyToComment(parentId: number): void {

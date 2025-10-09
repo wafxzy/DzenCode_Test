@@ -1,4 +1,3 @@
-<p>comment-list works!</p>
 <div class="comments-section">
   <div class="comments-header">
     <div class="sort-controls">
@@ -14,24 +13,72 @@
     </div>
   </div>
 
-  <div *ngIf="comments.length === 0" class="no-comments">
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Загрузка комментариев...</p>
+  </div>
+
+  <div *ngIf="comments.length === 0 && !isLoading" class="no-comments">
     Комментариев пока нет. Будьте первым!
   </div>
 
-  <div class="comments-list">
+  <div class="comments-list" *ngIf="!isLoading">
     <ng-container [ngTemplateOutlet]="commentTemplate" 
                   [ngTemplateOutletContext]="{comments: comments, depth: 0}">
     </ng-container>
   </div>
 
   <div class="pagination" *ngIf="totalPages > 1">
-    <button 
-      *ngFor="let page of [].constructor(totalPages); let i = index" 
-      (click)="goToPage(i + 1)"
-      [class.active]="currentPage === i + 1"
-      class="page-btn">
-      {{i + 1}}
-    </button>
+    <div class="pagination-info">
+      Страница {{currentPage}} из {{totalPages}} ({{comments.length}} из общего количества комментариев)
+    </div>
+    
+    <div class="pagination-controls">
+      <!-- Первая страница -->
+      <button 
+        (click)="goToFirstPage()"
+        [disabled]="currentPage === 1"
+        class="page-btn first-btn"
+        title="Первая страница">
+        ≪
+      </button>
+      
+      <!-- Предыдущая страница -->
+      <button 
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage === 1"
+        class="page-btn prev-btn"
+        title="Предыдущая страница">
+        ‹
+      </button>
+      
+      <!-- Номера страниц -->
+      <button 
+        *ngFor="let page of getPageNumbers()" 
+        (click)="goToPage(page)"
+        [class.active]="currentPage === page"
+        class="page-btn number-btn">
+        {{page}}
+      </button>
+      
+      <!-- Следующая страница -->
+      <button 
+        (click)="goToNextPage()"
+        [disabled]="currentPage === totalPages"
+        class="page-btn next-btn"
+        title="Следующая страница">
+        ›
+      </button>
+      
+      <!-- Последняя страница -->
+      <button 
+        (click)="goToLastPage()"
+        [disabled]="currentPage === totalPages"
+        class="page-btn last-btn"
+        title="Последняя страница">
+        ≫
+      </button>
+    </div>
   </div>
 </div>
 

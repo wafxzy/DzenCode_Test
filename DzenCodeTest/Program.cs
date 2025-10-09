@@ -2,6 +2,7 @@ using DzenCode.BLL.Services;
 using DzenCode.BLL.Services.Interfaces;
 using DzenCode.Common.Helpers;
 using DzenCode.DAL.Data;
+using DzenCodeTest.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -21,10 +22,8 @@ builder.Services.AddAutoMapper(typeof(CommentProfile));
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<ICaptchaService, CaptchaService>();
-builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<IHtmlSanitizerService, HtmlSanitizerService>();
 
+builder.Services.AddServiceExtensions();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
