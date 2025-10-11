@@ -18,6 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Fonts\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DzenCode.Common\DzenCode.Common.csproj" />
     <ProjectReference Include="..\DzenCode.DAL\DzenCode.DAL.csproj" />
   </ItemGroup>

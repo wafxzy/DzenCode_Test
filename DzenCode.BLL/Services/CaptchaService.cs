@@ -91,6 +91,19 @@ namespace DzenCode.BLL.Services
         private string GenerateCaptchaImage(string code)
         {
             using Image<Rgba32> image = new Image<Rgba32>(120, 40);
+            
+            FontCollection collection = new();
+            string fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "LiberationSans-Regular.ttf");
+            if (!System.IO.File.Exists(fontPath))
+            {
+                // Fallback for running from a different working directory (e.g. local dev)
+                string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                string assemblyDir = System.IO.Path.GetDirectoryName(assemblyLocation)!;
+                fontPath = System.IO.Path.Combine(assemblyDir, "Fonts", "LiberationSans-Regular.ttf");
+            }
+
+            collection.Add(fontPath);
+            FontFamily family = collection.Families.First();
 
             image.Mutate(ctx =>
             {
@@ -102,20 +115,14 @@ namespace DzenCode.BLL.Services
                     Color color = Color.FromRgb((byte)_random.Next(256), (byte)_random.Next(256), (byte)_random.Next(256));
                     image[x, y] = color;
                 }
-                try
-                {
-                    Font font = SystemFonts.CreateFont("Arial", 16, FontStyle.Bold);
-                    RichTextOptions textOptions = new RichTextOptions(font)
-                    {
-                        Origin = new PointF(10, 10)
-                    };
 
-                    ctx.DrawText(textOptions, code, Color.Black);
-                }
-                catch
+                Font font = family.CreateFont(16, FontStyle.Bold);
+                RichTextOptions textOptions = new RichTextOptions(font)
                 {
-                   Console.WriteLine("Font not available, using default.");
-                }
+                    Origin = new PointF(10, 10)
+                };
+
+                ctx.DrawText(textOptions, code, Color.Black);
 
                 for (int i = 0; i < 3; i++)
                 {

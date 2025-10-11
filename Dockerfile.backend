@@ -1,0 +1,51 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+
+COPY ["DzenCodeTest/DzenCodeTest.csproj", "DzenCodeTest/"]
+COPY ["DzenCode.BLL/DzenCode.BLL.csproj", "DzenCode.BLL/"]
+COPY ["DzenCode.Common/DzenCode.Common.csproj", "DzenCode.Common/"]
+COPY ["DzenCode.DAL/DzenCode.DAL.csproj", "DzenCode.DAL/"]
+
+
+RUN dotnet restore "DzenCodeTest/DzenCodeTest.csproj"
+
+
+COPY . .
+
+
+WORKDIR "/src/DzenCodeTest"
+RUN dotnet build "DzenCodeTest.csproj" -c Release -o /app/build
+
+
+RUN dotnet publish "DzenCodeTest.csproj" -c Release -o /app/publish
+
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS final
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libgdiplus \
+    libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+
+COPY --from=build /app/publish .
+
+
+COPY --from=build /src ./src
+
+
+RUN mkdir -p wwwroot/uploads/images wwwroot/uploads/textfiles
+
+
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
+
+EXPOSE 5193
+
+ENTRYPOINT ["./entrypoint.sh"]

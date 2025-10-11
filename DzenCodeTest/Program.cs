@@ -6,6 +6,30 @@ using DzenCodeTest.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
+
+// Проверка аргументов командной строки для тестирования подключения
+if (args.Length > 0 && args[0] == "--test-connection")
+{
+    try
+    {
+        IConfiguration config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables()
+            .Build();
+            
+        string connectionString = config.GetConnectionString("DefaultConnection") ?? "";
+        using var connection = new MySqlConnection(connectionString);
+        connection.Open();
+        Console.WriteLine("Database connection successful!");
+        Environment.Exit(0);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database connection failed: {ex.Message}");
+        Environment.Exit(1);
+    }
+}
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

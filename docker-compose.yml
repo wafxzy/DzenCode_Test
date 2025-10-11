@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dzencode_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: DzenCodeDB
+      MYSQL_USER: dzenuser
+      MYSQL_PASSWORD: dzenpass123
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - dzencode_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: dzencode_backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=DzenCodeDB;User=dzenuser;Password=dzenpass123;
+    ports:
+      - "5193:5193"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - dzencode_network
+    volumes:
+      - uploads_data:/app/wwwroot/uploads
+
+  frontend:
+    build:
+      context: ./DzenCodeTest_FE/DzenCodeTest_Front
+      dockerfile: Dockerfile.frontend
+    container_name: dzencode_frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - dzencode_network
+
+networks:
+  dzencode_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  uploads_data:
